@@ -23,6 +23,8 @@
 
 - (void)awakeFromNib {
     self.businessNameLabel.preferredMaxLayoutWidth = self.businessNameLabel.frame.size.width;
+    self.posterImageView.layer.cornerRadius = 3;
+    self.posterImageView.clipsToBounds = YES;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
