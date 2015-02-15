@@ -17,11 +17,12 @@ NSString * const kYelpConsumerSecret = @"U1oZ0INAygJWEUHdKpSPjio0XxY";
 NSString * const kYelpToken = @"nzNztxkNedzqTjxaj6ieiQQLMtnGhAJy";
 NSString * const kYelpTokenSecret = @"xwZ8qZsV9V9tZJb2P90kVrPOGnQ";
 
-@interface MainViewController () <UITableViewDataSource, UITableViewDelegate, FilterViewControllerDelegate>
+@interface MainViewController () <UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, FilterViewControllerDelegate>
 
 @property (nonatomic, strong) YelpClient *client;
 @property (nonatomic, strong) NSArray *businesses;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
+@property (nonatomic, strong) UISearchBar *searchBar;
 
 @end
 
@@ -58,10 +59,24 @@ NSString * const kYelpTokenSecret = @"xwZ8qZsV9V9tZJb2P90kVrPOGnQ";
     [self.tableView registerNib:[UINib nibWithNibName:@"BusinessCell" bundle:nil] forCellReuseIdentifier:@"BusinessCell"];
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = 88;
-    self.title = @"Yelp";
+//    self.title = @"Yelp";
     
     // add navigation bar button to go to filters view controller
     self.navigationItem.leftBarButtonItem =[[UIBarButtonItem alloc] initWithTitle:@"Filters" style:UIBarButtonItemStylePlain target:self action:@selector(onFilterButton)];
+    self.navigationItem.leftBarButtonItem.tintColor = [UIColor whiteColor];
+    
+    self.searchBar = [UISearchBar new];
+    self.searchBar.delegate = self;
+    [self.searchBar sizeToFit];
+    self.searchBar.placeholder = @"Search Here";
+    self.searchBar.showsCancelButton = YES;
+    self.searchBar.frame = CGRectMake(0,0,250, self.searchBar.bounds.size.height);
+    self.searchBar.searchBarStyle = UISearchBarStyleMinimal;
+    self.searchBar.showsCancelButton = NO;
+    UIView *barView = [[UIView alloc] initWithFrame:self.searchBar.frame];
+    [barView addSubview:self.searchBar];
+    self.navigationItem.titleView = barView;
+    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.769 green:0.071 blue:0 alpha:1];
 }
 
 - (void)didReceiveMemoryWarning
@@ -81,10 +96,22 @@ NSString * const kYelpTokenSecret = @"xwZ8qZsV9V9tZJb2P90kVrPOGnQ";
     return cell;
 }
 
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    // dismiss keyboard when scroll
+    [self.searchBar resignFirstResponder];
+}
+
 #pragma mark - filter delegate methods
 - (void)filterViewController:(FilterViewController *)filterViewController didChangeFilters:(NSDictionary *)filters {
     [self fetchBusinessesWithQuery:@"Restaurants" params:filters];
     NSLog(@"linking happened %@", filters);
+}
+
+#pragma mark - Search bar methods
+-(void) searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    NSString* text = searchBar.text;
+    [self fetchBusinessesWithQuery:text params:nil];
+    [searchBar resignFirstResponder];
 }
 
 #pragma mark - private methods

@@ -15,6 +15,13 @@
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) NSArray *categories;
 @property (nonatomic, strong) NSMutableSet *selectedCategories;
+@property (nonatomic, strong) NSArray *filterSections;
+@property (nonatomic, strong) NSArray *distanceArray;
+@property (nonatomic, strong) NSArray *sortByArray;
+@property (nonatomic, assign) bool showDistanceList;
+@property (nonatomic, assign) bool showSortByList;
+@property (nonatomic, assign) int selectedIndexInDistanceList;
+@property (nonatomic, assign) int selectedIndexInSortByList;
 
 @end
 
@@ -209,9 +216,24 @@
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     
+    // set table view section names
+    self.filterSections = @[@"Distance", @"Sort by", @"Categories"];
+    
+    // set distance and soryBy list
+    self.distanceArray = @[@0.3, @1, @5, @20];
+    self.sortByArray = @[@"Distance", @"Rating", @"Most Reviewed"];
+    
+    // set bool value to not sure list
+    self.showDistanceList = NO;
+    self.showSortByList = NO;
+    
+    // set initial selected index for distance and sort by section
+    self.selectedIndexInDistanceList = 0;
+    self.selectedIndexInSortByList = 0;
+    
     // Add navigation bar button
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:self action:@selector(onCancelButton)];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Apply" style:UIBarButtonItemStylePlain target:self action:@selector(onApplyButton)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Search" style:UIBarButtonItemStylePlain target:self action:@selector(onApplyButton)];
     
     [self.tableView registerNib:[UINib nibWithNibName:@"SwitchCell" bundle:nil] forCellReuseIdentifier:@"SwitchCell"];
 }
@@ -236,6 +258,7 @@
 }
 
 #pragma mark - private methods
+
 - (void)onCancelButton {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
@@ -246,16 +269,100 @@
 }
 
 #pragma mark - Table View methods
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.categories.count;
+    NSInteger count;
+    if (section == 0) {
+        if (!self.showDistanceList) {
+            count = 1;
+        } else {
+            count = self.distanceArray.count;
+        }
+    } else if (section == 1) {
+        if (!self.showSortByList) {
+            count = 1;
+        } else {
+            count = self.sortByArray.count;
+        }
+    } else {
+        count = self.categories.count;
+    }
+    return count;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return self.filterSections.count;
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    return self.filterSections[section];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    SwitchCell *cell = [tableView dequeueReusableCellWithIdentifier:@"SwitchCell"];
-    cell.titleLabel.text = self.categories[indexPath.row][@"name"];
-    cell.on = [self.selectedCategories containsObject:self.categories[indexPath.row]];
-    cell.delegate = self;
-    return cell;
+    if (indexPath.section == 0) {
+        UITableViewCell *cell = [[UITableViewCell alloc] init];
+        // if showDistanceList is no, then show accessory arrow, set the text label with the previously selected value
+        if (!self.showDistanceList) {
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            if ([self.distanceArray[indexPath.row] integerValue] == 1) {
+                cell.textLabel.text = [NSString stringWithFormat:@"%@ mile", self.distanceArray[self.selectedIndexInDistanceList]];
+            } else {
+                cell.textLabel.text = [NSString stringWithFormat:@"%@ miles", self.distanceArray[self.selectedIndexInDistanceList]];
+            }
+        } else {
+            if ([self.distanceArray[indexPath.row] integerValue] == 1) {
+                cell.textLabel.text = [NSString stringWithFormat:@"%@ mile", self.distanceArray[indexPath.row]];
+            } else {
+                cell.textLabel.text = [NSString stringWithFormat:@"%@ miles", self.distanceArray[indexPath.row]];
+            }
+            if (indexPath.row == self.selectedIndexInDistanceList) {
+                cell.accessoryType = UITableViewCellAccessoryCheckmark;
+            } else {
+                cell.accessoryType = UITableViewCellAccessoryNone;
+            }
+        }
+        return cell;
+    } else if (indexPath.section == 1) {
+        UITableViewCell *cell = [[UITableViewCell alloc] init];
+        if (!self.showSortByList) {
+            cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            cell.textLabel.text = [NSString stringWithFormat:@"%@", self.sortByArray[self.selectedIndexInSortByList]];
+        } else {
+            cell.textLabel.text = [NSString stringWithFormat:@"%@", self.sortByArray[indexPath.row]];
+            
+            if (indexPath.row == self.selectedIndexInSortByList) {
+                cell.accessoryType = UITableViewCellAccessoryCheckmark;
+            } else {
+                cell.accessoryType = UITableViewCellAccessoryNone;
+            }
+        }
+        return cell;
+    } else {
+        SwitchCell *cell = [tableView dequeueReusableCellWithIdentifier:@"SwitchCell"];
+        cell.titleLabel.text = self.categories[indexPath.row][@"name"];
+        cell.on = [self.selectedCategories containsObject:self.categories[indexPath.row]];
+        cell.delegate = self;
+        return cell;
+    }
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0) {
+        if (self.showDistanceList) {
+            self.selectedIndexInDistanceList = (int)indexPath.row;
+        }
+        self.showDistanceList = !self.showDistanceList;
+        [tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
+    } else if (indexPath.section == 1) {
+        if (self.showSortByList) {
+            self.selectedIndexInSortByList = (int)indexPath.row;
+        }
+        self.showSortByList = !self.showSortByList;
+        [tableView reloadSections:[NSIndexSet indexSetWithIndex:1] withRowAnimation:UITableViewRowAnimationFade];
+    } else {
+        return;
+    }
 }
 
 #pragma mark - switch cell delegate methods
