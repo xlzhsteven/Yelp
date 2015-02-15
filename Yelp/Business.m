@@ -40,7 +40,7 @@
         [categories enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             [categoryNames addObject:obj[0]];
         }];
-        self.categories = [categoryNames componentsJoinedByString:@" ,"];
+        self.categories = [categoryNames componentsJoinedByString:@", "];
     }
     return self;
 }
