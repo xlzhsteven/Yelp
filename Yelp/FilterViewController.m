@@ -221,7 +221,7 @@
     
     // set distance and soryBy list
     self.distanceArray = @[@0.3, @1, @5, @20];
-    self.sortByArray = @[@"Distance", @"Rating", @"Most Reviewed"];
+    self.sortByArray = @[@"Best Match", @"Distance", @"Rating", @"Deals"];
     
     // set bool value to not sure list
     self.showDistanceList = NO;
@@ -254,6 +254,30 @@
         NSString *categoryFilter = [names componentsJoinedByString:@","];
         [filters setObject:categoryFilter forKey:@"category_filter"];
     }
+    if (self.distanceArray.count > 0 && [self.sortByArray[self.selectedIndexInSortByList] isEqualToString:@"Distance"]) {
+        NSMutableArray *distances = [NSMutableArray array];
+        double distance = [[self.distanceArray objectAtIndex:self.selectedIndexInDistanceList]doubleValue];
+        distance = distance * 1609.34;
+        [distances addObject:[NSNumber numberWithDouble:distance]];
+        NSString *distanceFilter = [distances componentsJoinedByString:@","];
+        [filters setObject:distanceFilter forKey:@"radius_filter"];
+    }
+    if (self.sortByArray.count > 0) {
+        NSMutableArray *sorts = [NSMutableArray array];
+        NSNumber *sortSelectionCode;
+        NSString *sortBySelection = self.sortByArray[self.selectedIndexInSortByList];
+        if ([sortBySelection isEqualToString:@"Best Match"]) {
+            sortSelectionCode = [NSNumber numberWithInt:0];
+        } else if ([sortBySelection isEqualToString:@"Distance"]) {
+            sortSelectionCode = [NSNumber numberWithInt:1];
+        } else if ([sortBySelection isEqualToString:@"Rating"]){
+            sortSelectionCode = [NSNumber numberWithInt:2];
+        }
+        [sorts addObject:sortSelectionCode];
+        NSString *sortFilter = [sorts componentsJoinedByString:@","];
+        [filters setObject:sortFilter forKey:@"sort"];
+    }
+    
     return filters;
 }
 

@@ -30,7 +30,11 @@
         self.numReviews = [dictionary[@"review_count"] integerValue];
         
         // Set address, handle error when street is nil
-        NSString *street = [dictionary valueForKeyPath:@"location.address"][0];
+        NSArray *addressesArray = [dictionary valueForKeyPath:@"location.address"];
+        NSString *street;
+        if (addressesArray.count > 0) {
+            street = [dictionary valueForKeyPath:@"location.address"][0];
+        }
         NSString *neighborhoods = [dictionary valueForKeyPath:@"location.neighborhoods"][0];
         self.address = [NSString stringWithFormat:@"%@, %@",street, neighborhoods];
         
