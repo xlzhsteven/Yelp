@@ -1,6 +1,6 @@
 This is a Yelp search app using the Yelp API.
 
-Time spent: <Number of hours spent>
+Time spent: 20 hours
 
 
 ###Required Features
