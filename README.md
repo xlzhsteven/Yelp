@@ -27,7 +27,7 @@ Time spent: <Number of hours spent>
 - [ ] Implement the restaurant detail page.
 
 ###Walkthrough
-
+<img src="https://cloud.githubusercontent.com/assets/3433026/6206597/9dcae902-b542-11e4-9cc8-7839acfe1a6d.gif" alt="" width="300">
 
 ###Reference
 [Yelp Custom Cell Walkthrough - An Auto Layout Use Case](https://vimeo.com/109911790)
