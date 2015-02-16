@@ -217,6 +217,10 @@
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     
+    self.navigationController.navigationBar.barTintColor = [UIColor colorWithRed:0.769 green:0.071 blue:0 alpha:1];
+    self.title = @"Yelp Filter";
+    [self.navigationController.navigationBar setTitleTextAttributes:[NSDictionary dictionaryWithObject:[UIColor whiteColor] forKey:NSForegroundColorAttributeName]];
+    
     // Set deals to off when page loads
     self.selectedIndexInDealList = 1;
     
@@ -237,7 +241,9 @@
     
     // Add navigation bar button
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStylePlain target:self action:@selector(onCancelButton)];
+    self.navigationItem.leftBarButtonItem.tintColor = [UIColor whiteColor];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Search" style:UIBarButtonItemStylePlain target:self action:@selector(onApplyButton)];
+    self.navigationItem.rightBarButtonItem.tintColor = [UIColor whiteColor];
     
     [self.tableView registerNib:[UINib nibWithNibName:@"SwitchCell" bundle:nil] forCellReuseIdentifier:@"SwitchCell"];
 }
