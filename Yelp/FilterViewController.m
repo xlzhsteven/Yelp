@@ -22,6 +22,7 @@
 @property (nonatomic, assign) bool showSortByList;
 @property (nonatomic, assign) int selectedIndexInDistanceList;
 @property (nonatomic, assign) int selectedIndexInSortByList;
+@property (nonatomic, assign) int selectedIndexInDealList;
 
 @end
 
@@ -216,8 +217,11 @@
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     
+    // Set deals to off when page loads
+    self.selectedIndexInDealList = 1;
+    
     // set table view section names
-    self.filterSections = @[@"Distance", @"Sort by", @"Categories"];
+    self.filterSections = @[@"Deals", @"Distance", @"Sort by", @"Categories"];
     
     // set distance and soryBy list
     self.distanceArray = @[@0.3, @1, @5, @20];
@@ -278,6 +282,16 @@
         [filters setObject:sortFilter forKey:@"sort"];
     }
     
+    // Deal selection
+    NSString *dealSelection = @"false";
+    if (self.selectedIndexInDealList == 0) {
+        NSMutableArray *deals = [NSMutableArray array];
+        dealSelection = @"true";
+        [deals addObject:dealSelection];
+        [filters setObject:dealSelection forKey:@"deals_filter"];
+    }
+    
+    
     return filters;
 }
 
@@ -292,23 +306,32 @@
     [self.delegate filterViewController:self didChangeFilters:self.filters];
 }
 
+- (void)MySegmentControlAction:(UISegmentedControl *)segment
+{
+    self.selectedIndexInDealList = (int)segment.selectedSegmentIndex ;
+    
+}
+
 #pragma mark - Table View methods
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSInteger count;
+    NSInteger count = 0;
     if (section == 0) {
+        count = 1;
+    }
+    if (section == 1) {
         if (!self.showDistanceList) {
             count = 1;
         } else {
             count = self.distanceArray.count;
         }
-    } else if (section == 1) {
+    } else if (section == 2) {
         if (!self.showSortByList) {
             count = 1;
         } else {
             count = self.sortByArray.count;
         }
-    } else {
+    } else if (section == 3){
         count = self.categories.count;
     }
     return count;
@@ -325,6 +348,15 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == 0) {
+        UITableViewCell *cell = [[UITableViewCell alloc] init];
+        NSArray *dealSwitch = @[@"ON",@"OFF"];
+        UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:dealSwitch];
+        segmentedControl.frame = cell.frame;
+        [segmentedControl addTarget:self action:@selector(MySegmentControlAction:) forControlEvents: UIControlEventValueChanged];
+        segmentedControl.selectedSegmentIndex = self.selectedIndexInDealList;
+        [cell addSubview:segmentedControl];
+        return cell;
+    } else if (indexPath.section == 1) {
         UITableViewCell *cell = [[UITableViewCell alloc] init];
         // if showDistanceList is no, then show accessory arrow, set the text label with the previously selected value
         if (!self.showDistanceList) {
@@ -347,7 +379,7 @@
             }
         }
         return cell;
-    } else if (indexPath.section == 1) {
+    } else if (indexPath.section == 2) {
         UITableViewCell *cell = [[UITableViewCell alloc] init];
         if (!self.showSortByList) {
             cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -372,18 +404,18 @@
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == 0) {
+    if (indexPath.section == 1) {
         if (self.showDistanceList) {
             self.selectedIndexInDistanceList = (int)indexPath.row;
         }
         self.showDistanceList = !self.showDistanceList;
-        [tableView reloadSections:[NSIndexSet indexSetWithIndex:0] withRowAnimation:UITableViewRowAnimationFade];
-    } else if (indexPath.section == 1) {
+        [tableView reloadSections:[NSIndexSet indexSetWithIndex:1] withRowAnimation:UITableViewRowAnimationFade];
+    } else if (indexPath.section == 2) {
         if (self.showSortByList) {
             self.selectedIndexInSortByList = (int)indexPath.row;
         }
         self.showSortByList = !self.showSortByList;
-        [tableView reloadSections:[NSIndexSet indexSetWithIndex:1] withRowAnimation:UITableViewRowAnimationFade];
+        [tableView reloadSections:[NSIndexSet indexSetWithIndex:2] withRowAnimation:UITableViewRowAnimationFade];
     } else {
         return;
     }
