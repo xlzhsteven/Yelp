@@ -56,6 +56,9 @@ NSString * const kYelpTokenSecret = @"xwZ8qZsV9V9tZJb2P90kVrPOGnQ";
     self.tableView.dataSource = self;
     self.tableView.delegate = self;
     
+    // After adding View controller-based status bar appearance to NO in the Yelp.plist, set the following to change the status bar color
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    
     [self.tableView registerNib:[UINib nibWithNibName:@"BusinessCell" bundle:nil] forCellReuseIdentifier:@"BusinessCell"];
     self.tableView.rowHeight = UITableViewAutomaticDimension;
     self.tableView.estimatedRowHeight = 88;
